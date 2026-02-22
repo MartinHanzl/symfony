@@ -1,21 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Contact index{% endblock %}
+{% block title %}Seznam kontaktů{% endblock %}
 
 {% block body %}
-    <h1>Contact index</h1>
+    <h1>Seznam kontaktů</h1>
 
-    <table class="table">
+    <div style="margin-bottom: 20px;">
+        <a href="{{ path('app_contact_new') }}">Přidat nový kontakt</a>
+    </div>
+
+    <table border="1" cellpadding="10" cellspacing="0" style="width: 100%;">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>Firstname</th>
-                <th>Lastname</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Note</th>
-                <th>actions</th>
-            </tr>
+        <tr>
+            <th>ID</th>
+            <th>Jméno</th>
+            <th>Příjmení</th>
+            <th>Telefon</th>
+            <th>Email</th>
+            <th>Akce</th>
+        </tr>
         </thead>
         <tbody>
         {% for contact in contacts %}
@@ -25,19 +28,33 @@
                 <td>{{ contact.lastname }}</td>
                 <td>{{ contact.phone }}</td>
                 <td>{{ contact.email }}</td>
-                <td>{{ contact.note }}</td>
                 <td>
-                    <a href="{{ path('app_contact_show', {'id': contact.id}) }}">show</a>
-                    <a href="{{ path('app_contact_edit', {'id': contact.id}) }}">edit</a>
+                    <button onclick="document.getElementById('note-{{ contact.id }}').showModal()">Poznámka</button>
+                    <dialog id="note-{{ contact.id }}" onclick="if(event.target === this) this.close()">
+                        <div style="padding: 10px;">
+                            <h3>Poznámka - {{ contact.firstname }} {{ contact.lastname }}</h3>
+                            <p>{{ contact.note|default('U tohoto kontaktu není žádná poznámka.') }}</p>
+
+                            <button onclick="document.getElementById('note-{{ contact.id }}').close()">Zavřít</button>
+                        </div>
+                    </dialog>
+
+                    |
+                    <a href="{{ path('app_contact_edit', {'slug': contact.slug, 'id': contact.id}) }}">Editovat</a> |
+
+                    {{ include('contact/_delete_form.html.twig') }}
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="7">no records found</td>
+                <td colspan="6" style="text-align: center;">Zatím nemáte uloženy žádné kontakty.</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <a href="{{ path('app_contact_new') }}">Create new</a>
+    <div style="margin-top: 20px; text-align: center;">
+        {{ knp_pagination_render(contacts) }}
+    </div>
+
 {% endblock %}
